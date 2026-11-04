@@ -572,11 +572,11 @@
      * - cell formatting
      */
 
-    const getVideos = async () => {
-        const range =
-            encodeURIComponent(
-                `${config.sheetName}!A:F`
-            );
+	const getVideos = async (sheetName = config.sheetName) => {
+		const range =
+			encodeURIComponent(
+				`'${sheetName.replace(/'/g, "''")}'!A:F`
+			);
 
         const fields =
             encodeURIComponent([
@@ -1208,11 +1208,15 @@
         );
 
         try {
+            const sheetName =
+                container.dataset.sheetName ||
+                config.sheetName;
+
             videos =
-                await getVideos();
+                await getVideos(sheetName);
 
             console.log(
-                `${MODULE} Loaded ${videos.length} video(s).`,
+                `${MODULE} Loaded ${videos.length} video(s) from ${sheetName}.`,
                 videos
             );
 
