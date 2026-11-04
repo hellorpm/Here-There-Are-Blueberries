@@ -12,6 +12,8 @@
 	 * D = LINK
 	 * E = CATEGORY
 	 * F = THUMBNAIL
+	 * G = DISPLAY STYLE   (blank = video, "Book" = book layout)
+	 * H = IMAGE SOURCE    (books only; blank = Goodreads)
 	 *
 	 * LINK:
 	 * Modal
@@ -411,7 +413,7 @@
 	 */
 
 	const getVideos = async (sheetName = config.sheetName) => {
-		const range = encodeURIComponent(`'${sheetName.replace(/'/g, "''")}'!A:F`);
+		const range = encodeURIComponent(`'${sheetName.replace(/'/g, "''")}'!A:H`);
 
 		const fields = encodeURIComponent(
 			["sheets.data.rowData.values.formattedValue", "sheets.data.rowData.values.hyperlink", "sheets.data.rowData.values.textFormatRuns", "sheets.data.rowData.values.effectiveFormat.textFormat"].join(
@@ -455,6 +457,10 @@
 
 					const videoType = getVideoType(url);
 
+					const displayStyle = cellText(cells[6]).toLowerCase();
+
+					const imageSource = cellText(cells[7]);
+
 					return {
 						index,
 
@@ -472,6 +478,8 @@
 						link,
 						category,
 						thumbnail,
+						displayStyle,
+						imageSource,
 
 						type: videoType.type,
 
@@ -479,7 +487,7 @@
 					};
 				})
 
-				.filter((video) => video.url)
+				.filter((video) => video.url || (video.displayStyle === "book" && video.title))
 		);
 	};
 
@@ -637,6 +645,64 @@
 	};
 
 	// ============================================================
+	// BOOK CARD
+	// ============================================================
+
+	const bookCardHtml = (book) => {
+		const url = normalizeUrl(book.url);
+		const cover = book.resolvedThumbnail || "";
+
+		// Wrap in a new-tab link only when the row has a URL.
+		const linkTo = (html, attrs = "") => (url ? `<a href="${esc(url)}" target="_blank" ` + `rel="noopener noreferrer" ${attrs}>${html}</a>` : html);
+
+		// No cover image = render nothing in the left column.
+		const coverHtml = cover
+			? `
+            ${linkTo(
+							`<img class="htbb-books__image"
+                      src="${esc(cover)}"
+                      alt=""
+                      loading="lazy">`,
+							'tabindex="-1" aria-hidden="true"',
+						)}
+            <p class="htbb-books__source">
+               Source: ${esc(book.imageSource || "Goodreads")}
+            </p>
+        `
+			: "";
+
+		return `
+        <article class="htbb-books__item">
+
+            <div class="htbb-books__cover">
+                ${coverHtml}
+            </div>
+
+            <div class="htbb-books__info">
+
+                ${
+									book.title
+										? `<h3 class="htbb-books__title">
+                               ${linkTo(esc(book.title))}
+                           </h3>`
+										: ""
+								}
+
+                ${
+									book.descriptionHtml
+										? `<div class="htbb-books__author">
+                               ${book.descriptionHtml}
+                           </div>`
+										: ""
+								}
+
+            </div>
+
+        </article>
+    `;
+	};
+
+	// ============================================================
 	// GROUP CATEGORIES
 	// ============================================================
 
@@ -651,6 +717,7 @@
 			if (!groups.has(key)) {
 				groups.set(key, {
 					label,
+					displayStyle: video.displayStyle,
 					videos: [],
 				});
 			}
@@ -666,21 +733,23 @@
 	// ============================================================
 
 	const categoryHtml = (group) => {
+		const isBooks = group.displayStyle === "book";
+
 		return `
-            <section class="htbb-videos__category">
+        <section class="htbb-videos__category">
 
-                <div class="header-bar">
-                    <h2>${esc(group.label)}</h2>
-                </div>
+            <div class="header-bar">
+                <h2>${esc(group.label)}</h2>
+            </div>
 
-                <div class="htbb-videos__grid">
+            <div class="${isBooks ? "htbb-books__list" : "htbb-videos__grid"}">
 
-                    ${group.videos.map(cardHtml).join("")}
+                ${group.videos.map(isBooks ? bookCardHtml : cardHtml).join("")}
 
-                </div>
+            </div>
 
-            </section>
-        `;
+        </section>
+    `;
 	};
 
 	// ============================================================
