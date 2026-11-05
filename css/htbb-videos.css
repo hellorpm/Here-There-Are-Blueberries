@@ -192,6 +192,10 @@ a.htbb-videos__link {
    ============================================================ */
 
 .htbb-books__list {
+	--book-gap: 36px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: 60px;
 	max-width: 100%;
 	padding: 0 25px;
 	width: 1400px;
@@ -200,19 +204,16 @@ a.htbb-videos__link {
 
 .htbb-books__item {
 	display: grid;
-	grid-template-columns: min(15%, 350px) minmax(0, 1fr);
+	grid-template-columns: min(31%, 350px) minmax(0, 1fr);
 	column-gap: 36px;
 	align-items: start;
-	padding: 36px 0;
-	border-bottom: 1px solid rgb(0 0 0 / 25%);
+	padding-bottom: var(--book-gap);
 }
 
-.htbb-books__item:first-child {
-	padding-top: 0;
-}
-
-.htbb-books__item:last-child {
-	border-bottom: 0;
+/* Divider above every row except the first */
+.htbb-books__item:nth-child(n + 3) {
+	padding-top: var(--book-gap);
+	border-top: 1px solid rgb(0 0 0 / 25%);
 }
 
 .htbb-books__cover {
@@ -238,7 +239,7 @@ a.htbb-videos__link {
 
 .htbb-books__title {
 	margin: 0 0 8px;
-	font-size: clamp(22px, 2.6vw, 20px);
+	font-size: clamp(16px, 2.6vw, 20px);
 	font-weight: 700;
 	line-height: 1.1;
 	font-family: 'avenir next' !important;
@@ -400,6 +401,15 @@ body.htbb-video-modal-open {
             repeat(2, minmax(0, 1fr));
     }
 
+		.htbb-books__list {
+		grid-template-columns: 1fr;
+	}
+
+	.htbb-books__item:nth-child(2) {
+		padding-top: var(--book-gap);
+		border-top: 1px solid rgb(0 0 0 / 25%);
+	}
+
 }
 
 
@@ -447,9 +457,12 @@ body.htbb-video-modal-open {
         top: -44px;
 	}
 
+	.htbb-books__list {
+		--book-gap: 28px;
+	}
+
 	.htbb-books__item {
 		column-gap: 20px;
-		padding: 28px 0;
 	}
 
 }
