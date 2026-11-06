@@ -14,6 +14,7 @@
 	 * F = THUMBNAIL
 	 * G = DISPLAY STYLE   (blank = video, "Book" = book layout)
 	 * H = IMAGE SOURCE    (books only; blank = Goodreads)
+	 * I = BECKY SAYS      (books only; optional)
 	 *
 	 * LINK:
 	 * Modal
@@ -413,7 +414,7 @@
 	 */
 
 	const getVideos = async (sheetName = config.sheetName) => {
-		const range = encodeURIComponent(`'${sheetName.replace(/'/g, "''")}'!A:H`);
+		const range = encodeURIComponent(`'${sheetName.replace(/'/g, "''")}'!A:I`);
 
 		const fields = encodeURIComponent(
 			["sheets.data.rowData.values.formattedValue", "sheets.data.rowData.values.hyperlink", "sheets.data.rowData.values.textFormatRuns", "sheets.data.rowData.values.effectiveFormat.textFormat"].join(
@@ -461,6 +462,8 @@
 
 					const imageSource = cellText(cells[7]);
 
+					const beckySaysCell = cells[8] || {};
+
 					return {
 						index,
 
@@ -472,7 +475,7 @@
 
 						description: cellText(descriptionCell),
 
-						descriptionHtml: cellToHtml(descriptionCell),
+						descriptionHtml: esc(cellToHtml(descriptionCell)),
 
 						url,
 						link,
@@ -480,6 +483,7 @@
 						thumbnail,
 						displayStyle,
 						imageSource,
+						beckySaysHtml: esc(cellToHtml(beckySaysCell)),
 
 						type: videoType.type,
 
@@ -695,6 +699,13 @@
                            </div>`
 										: ""
 								}
+				${
+					book.beckySaysHtml
+						? `<div class="htbb-books__beckysays">
+                               Becky says, “${book.beckySaysHtml}“
+                           </div>`
+						: ""
+				}
 
             </div>
 
