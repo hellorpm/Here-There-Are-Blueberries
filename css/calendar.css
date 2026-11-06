@@ -357,6 +357,7 @@
 .htbb-calendar__performance.is-best-available .htbb-calendar__link:hover,
 .htbb-calendar__performance.is-best-available .htbb-calendar__link:focus-visible {
   box-shadow: inset 0 0 0 2px var(--cal-paper);
+  color: #FAC946;
 }
 
 /* Visible focus everywhere, offset so it never sits under an adjacent rule. */
