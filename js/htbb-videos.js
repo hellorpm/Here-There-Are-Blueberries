@@ -199,7 +199,7 @@
 	};
 
 	const cellText = (cell) => {
-		return String(cell?.formattedValue ?? "").trim();
+		return decodeEntities(String(cell?.formattedValue ?? "")).trim();
 	};
 
 	// ============================================================
@@ -475,7 +475,7 @@
 
 						description: cellText(descriptionCell),
 
-						descriptionHtml: esc(cellToHtml(descriptionCell)),
+						descriptionHtml: cellToHtml(descriptionCell),
 
 						url,
 						link,
@@ -483,7 +483,7 @@
 						thumbnail,
 						displayStyle,
 						imageSource,
-						beckySaysHtml: esc(cellToHtml(beckySaysCell)),
+						beckySaysHtml: cellToHtml(beckySaysCell),
 
 						type: videoType.type,
 
