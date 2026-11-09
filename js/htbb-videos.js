@@ -199,7 +199,7 @@
 	};
 
 	const cellText = (cell) => {
-		return decodeEntities(String(cell?.formattedValue ?? "")).trim();
+		return String(cell?.formattedValue ?? "").trim();
 	};
 
 	// ============================================================
