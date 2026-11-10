@@ -394,6 +394,15 @@
 			.replace(/\s+/g, " ");
 	};
 
+	const slugify = (value) => {
+		return String(value || "")
+			.toLowerCase()
+			.trim()
+			.replace(/&/g, " and ")
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "");
+	};
+
 	// ============================================================
 	// GOOGLE SHEETS DATA
 	// ============================================================
@@ -745,9 +754,10 @@
 
 	const categoryHtml = (group) => {
 		const isBooks = group.displayStyle === "book";
+		const id = slugify(group.label) || "category";
 
 		return `
-        <section class="htbb-videos__category">
+        <section class="htbb-videos__category" id="${esc(id)}">
 
             <div class="header-bar">
                 <h2>${esc(group.label)}</h2>
@@ -922,6 +932,35 @@
 	};
 
 	// ============================================================
+	// JUMP TO #HASH
+	// ============================================================
+
+	/**
+	 * Sections are built after the sheet loads, so the browser's
+	 * own jump-to-anchor has already failed by then. Redo it.
+	 */
+
+	const scrollToHash = () => {
+		let id = "";
+
+		try {
+			id = decodeURIComponent(window.location.hash.slice(1));
+		} catch {
+			return;
+		}
+
+		if (!id) {
+			return;
+		}
+
+		const target = document.getElementById(id);
+
+		if (target) {
+			target.scrollIntoView();
+		}
+	};
+
+	// ============================================================
 	// INIT
 	// ============================================================
 
@@ -950,8 +989,10 @@
 			await resolveThumbnails(videos);
 
 			renderVideos(container);
-
+			requestAnimationFrame(scrollToHash);
 			bindEvents(container);
+			window.addEventListener("load", scrollToHash, { once: true });
+			
 		} catch (error) {
 			console.error(`${MODULE} Unable to load videos.`, error);
 
